@@ -3,6 +3,7 @@
 #define MENUNUMBER 7
 #define size 5
 
+//コンソールクリア用マクロ
 #ifdef _WIN32
 #define CLEAR_CMD "cls"
 #else
@@ -51,11 +52,13 @@ void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[
         system(CLEAR_CMD);
     } while (!(1 == scanID || 2 == scanID));
 
-    if(1 == scanID)//行列Aの取得
+    //行列Aの取得
+    if(1 == scanID)
     {
         resetMatrix(x);
 
-        do//行列のサイズ選択
+        //行列のサイズ選択
+        do
         {
             printf("行列Aの行数を選択(1~%d):", size);
             scanf("%d", rA);
@@ -64,7 +67,8 @@ void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[
             system(CLEAR_CMD);
         } while (!(1 <= *rA && *rA <= size && 1 <= *cA && *cA <= size));
 
-        for(int i = 0; i < *rA; i++)//行列の登録
+        //行列の登録
+        for(int i = 0; i < *rA; i++)
         {
             for(int j = 0; j < *cA; j++)
             {
@@ -76,11 +80,13 @@ void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[
         system(CLEAR_CMD);
     }
 
-    else//行列Bの取得
+    //行列Bの取得
+    else
     {
         resetMatrix(y);
 
-        do//行列のサイズ選択
+        //行列のサイズ選択
+        do
         {
             printf("行列Bの行数を選択:");
             scanf("%d", rB);
@@ -89,7 +95,8 @@ void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[
             system(CLEAR_CMD);
         } while (!(1 <= *rB && *rB <= size && 1 <= *cB && *cB <= size));
 
-        for(int i = 0; i < *rB; i++)//行列の登録
+        //行列の登録
+        for(int i = 0; i < *rB; i++)
         {
             for(int j = 0; j < *cB; j++)
             {
@@ -110,7 +117,8 @@ void addMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
     {
         resetMatrix(z);
 
-        for (int i = 0; i < rA; i++)//加算
+        //加算
+        for (int i = 0; i < rA; i++)
         {
             for (int j = 0; j < cA; j++)
             {
@@ -134,7 +142,7 @@ void multiMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[si
     if(cA == rB)
     {
         resetMatrix(z);
-        
+
         for(int i = 0; i < rA; i++)
         {
             for(int j = 0; j < cB; j++)
@@ -156,60 +164,66 @@ void multiMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[si
     }
 }
 
-//行基本変形・行交換
+
+//行基本変形・xとyの行交換
 void P(float x[size], float y[size])
 {
     float tmp;
-    for(int i = 1; i <= size; i++)
+    for(int i = 0; i < size; i++)
     {
-        tmp = x[i - 1];
-        x[i - 1] = y[i - 1];
-        y[i - 1] = tmp;
+        tmp = x[i];
+        x[i] = y[i];
+        y[i] = tmp;
     }
 }
 
-//行基本変形・行スカラー倍
+//行基本変形・xをcで行スカラー倍
 void Q(float x[size], float c)
 {
-    for(int i = 1; i <= size; i++)
+    for(int i = 0; i < size; i++)
     {
-        x[i - 1] *= c;
+        x[i] *= c;
     }
 }
 
-//行基本変形・行スカラー和
+//行基本変形・xにyをc倍したものを行スカラー和
 void R(float x[size], float y[size], float c)
 {
-    for(int i = 1; i <= size; i++)
+    for(int i = 0; i < size; i++)
     {
-        x[i - 1] += y[i - 1] * c;
+        x[i] += y[i] * c;
     }
 }
+
 
 //行列の簡約化
 void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
 {
     int scanID;
     float k;
-    int unRank; //階数の最大値よりいくつ小さいか
+    int unRank = 0; //階数の最大値よりいくつ小さいか
     int r, c;
+    int rank;
+
     do
     {
         printf("簡約化する行列の選択\n");
         printf("1:行列A\n");
         printf("2:行列B\n");
         scanf("%d", &scanID);
-        system("reset");
+        system(CLEAR_CMD);
     } while (!(1 == scanID || 2 == scanID));
+
+    //行列を計算用行列にコピー
     if(1 == scanID)
     {
         r = rA;
         c = cA;
-        for(int i = 1; i <= size; i++)
+        for(int i = 0; i < size; i++)
         {
-            for(int j = 1; j <= size; j++)
+            for(int j = 0; j < size; j++)
             {
-                z[i - 1][j - 1] = x[i - 1][j - 1];
+                z[i][j] = x[i][j];
             }
         }
     }
@@ -217,43 +231,63 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
     {
         r = rB;
         c = cB;
-        for(int i = 1; i <= size; i++)
+        for(int i = 0; i < size; i++)
         {
-            for(int j = 1; j <= size; j++)
+            for(int j = 0; j <size; j++)
             {
-                z[i - 1][j - 1] = y[i - 1][j - 1];
+                z[i][j] = y[i][j];
             }
         }
     }
-    for(int j = 1; j <= size; j++) //掃き出し法
+
+    /*******掃き出し法開始********/
+    for(int j = 0; j < c; j++) //列毎に処理
     {
-        for(int i = j + 1 - unRank; i <= size; i++)
+        int pivotRow = j - unRank; //ピボット候補の行の端
+
+        // ピボットのある行の探索
+        int found = -1; //ピボットのある行保存用
+        for (int i = pivotRow; i < r; i++)
         {
-            if(0 != z[j - 1 - unRank][j - 1]) break;
-            P(z[i - 1], z[j - 1 - unRank]);
-        }
-        if(0 != z[j - 1 - unRank][j - 1])
-        {
-            k = 1 / z[j - 1 - unRank][j - 1];
-            Q(z[j - 1 - unRank], k);
-            for(int i = 1; i <= size; i++)
+            if (0 != z[i][j])
             {
-                if(i != j)
-                {
-                    k = -z[i - 1][j - 1];
-                    R(z[i - 1], z[j - 1 - unRank], k);
-                }
+                found = i;
+                break;
             }
         }
-        else
+
+        // ピボットが見つからなければランク減少し次の列へ
+        if (found == -1)
         {
             unRank++;
+            continue;
         }
+
+        //ピボットのある行を先頭へ持っていく
+        P(z[pivotRow], z[found]);
+
+        //ピボットを１にする
+        k = 1 / z[j - unRank][j];
+        Q(z[j - unRank], k);
+
+        //他の行のピボットがある列を0にする
+        for(int i = 0; i < r; i++)
+        {
+            if(i != pivotRow)
+            {
+                k = -z[i][j];
+                R(z[i], z[pivotRow], k);
+            }
+        }
+        rank = pivotRow + 1;
     }
+    /*******掃き出し法終了********/
+
     outputMatrix(r, c, z);
-    if(1 == scanID) printf("rankA = %d", size - unRank);
-    else printf("rankB = %d", size - unRank);
+    if(1 == scanID) printf("rankA = %d\n", rank);
+    else printf("rankB = %d\n", rank);
 }
+
 
 //行列式
 int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
