@@ -109,13 +109,15 @@ void addMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
     if(rA == rB && cA == cB)
     {
         resetMatrix(z);
-        for (int i = 1; i <= size; i++)
+
+        for (int i = 0; i < rA; i++)//加算
         {
-            for (int j = 1; j <= size; j++)
+            for (int j = 0; j < cA; j++)
             {
-                z[i - 1][j - 1] = x[i - 1][j - 1] + y[i - 1][j - 1];
+                z[i][j] = x[i][j] + y[i][j];
             }
         }
+
         printf("A+B=\n");
         outputMatrix(rA, cA, z);
     }
@@ -124,6 +126,7 @@ void addMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
         printf("行列の和が定義出来ません");
     }
 }
+
 
 //行列の積
 void multiMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
