@@ -6,18 +6,13 @@
 //行列の出力
 void outputMatrix(int r, int c, float x[size][size])
 {
-    for(int i = 1; i <= r; i++)
+    for(int i = 0; i < r; i++)
     {
-        for(int j = 1; j <= c; j++)
+        for(int j = 0; j < c; j++)
         {
-            if(j != c) //途中の列
-            {
-               printf("%.2f, ", x[i - 1][j - 1]);
-            }
-            else //端の列
-            {
-                printf("%.2f\n", x[i - 1][j - 1]);
-            }
+            printf("%8.3f", x[i][j]);
+            if (j < c - 1) printf(", ");
+            else printf("\n");
         }
     }
 }
@@ -25,11 +20,11 @@ void outputMatrix(int r, int c, float x[size][size])
 //行列のリセット
 void resetMatrix(float x[size][size])
 {
-    for(int i = 1; i <= size; i++)
+    for (int i = 0; i < size; i++)
     {
-        for(int j = 1; j <= size; j++)
+        for (int j = 0; j < size; j++)
         {
-            x[i - 1][j - 1] = 0;
+            x[i][j] = 0;
         }
     }
 }
