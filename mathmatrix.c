@@ -257,7 +257,7 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
         }
 
         // ピボットが見つからなければランク減少し次の列へ
-        if (found == -1)
+        if (-1 == found)
         {
             unRank++;
             continue;
@@ -267,8 +267,8 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
         P(z[pivotRow], z[found]);
 
         //ピボットを１にする
-        k = 1 / z[j - unRank][j];
-        Q(z[j - unRank], k);
+        k = 1 / z[pivotRow][j];
+        Q(z[pivotRow], k);
 
         //他の行のピボットがある列を0にする
         for(int i = 0; i < r; i++)
@@ -290,7 +290,7 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
 
 
 //行列式
-void detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
+int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
 {
     int scanID;
     int n;
@@ -322,7 +322,8 @@ void detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
         }
         else
         {
-            printf("行列式が定義できない");
+            printf("行列式が定義できない\n");
+            return 0;
         }
     }
     else
@@ -341,6 +342,7 @@ void detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
         else
         {
             printf("行列式が定義できない");
+            return 0;
         }
     }
 
@@ -400,22 +402,22 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
         printf("1:Aインバース\n");
         printf("2:Bインバース\n");
         scanf("%d", &scanID);
-        system("reset");
+        system(CLEAR_CMD);
     } while (!(1 == scanID || 2 == scanID));
 
-
+    //行列を計算用行列にコピー
     if(1 == scanID)
     {
         if(rA == cA)
         {
             n = rA;
-            for(int i = 1; i <= size; i++)
+            for(int i = 0; i < size; i++)
             {
-                for(int j = 1; j <= size; j++)
+                for(int j = 0; j < size; j++)
                 {
-                    z[i - 1][j - 1] = x[i - 1][j - 1];
-                    if(i == j) E[i - 1][j - 1] = 1;
-                    else E[i - 1][j - 1] = 0;
+                    z[i][j] = x[i][j];
+                    if(i == j) E[i][j] = 1;
+                    else E[i][j] = 0;
                 }
             }
         }
@@ -430,13 +432,13 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
         if(rB == cB)
         {
             n = rB;
-            for(int i = 1; i <= size; i++)
+            for(int i = 0; i < size; i++)
             {
-                for(int j = 1; j <= size; j++)
+                for(int j = 0; j < size; j++)
                 {
-                    z[i - 1][j - 1] = y[i - 1][j - 1];
-                    if(i == j) E[i - 1][j - 1] = 1;
-                    else E[i - 1][j - 1] = 0;
+                    z[i][j] = y[i][j];
+                    if(i == j) E[i][j] = 1;
+                    else E[i][j] = 0;
                 }
             }
         }
@@ -448,35 +450,45 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
     }
 
 
-    for(int j = 1; j <= n; j++) //掃き出し法
+    /*******掃き出し法開始********/
+    for(int j = 0; j < n; j++) //列毎に処理
     {
-        for(int i = j + 1; i <= n; i++)
+        // ピボットのある行の探索
+        int found = -1; //ピボットのある行保存用
+        for (int i = j; i < n; i++)
         {
-            if(0 != z[j - 1][j - 1]) break;
-            P(z[i - 1], z[j - 1]);
-            P(E[i - 1], E[j - 1]);
-        }
-        if(0 != z[j - 1][j - 1])
-        {
-            k = 1 / z[j - 1][j - 1];
-            Q(z[j - 1], k);
-            Q(E[j - 1], k);
-            for(int i = 1; i <= n; i++)
+            if (0 != z[i][j])
             {
-                if(i != j)
-                {  
-                    k = -z[i - 1][j - 1];
-                    R(z[i - 1], z[j - 1], k);
-                    R(E[i - 1], E[j - 1], k);
-                }
+                found = i;
+                break;
             }
         }
-        else
+
+        // ピボットが見つからなければ正則でない
+        if (-1 == found)
         {
-            printf("正則行列でない");
+            printf("正則行列でない\n");
             return 0;
         }
+
+        //ピボットを１にする
+        k = 1 / z[j][j];
+        Q(z[j], k);
+        Q(E[j], k);
+
+        //他の行のピボットがある列を0にする
+        for(int i = 0; i < n; i++)
+        {
+            if(i != j)
+            {
+                k = -z[i][j];
+                R(z[i], z[j], k);
+                R(E[i], E[j], k);
+            }
+        }
     }
+    /*******掃き出し法終了********/
+
     outputMatrix(n, n, E);
     return 0;
 }
@@ -486,14 +498,16 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
 {
     int scanID, n;
     float k;
+
     do
     {
         printf("行列の選択\n");
         printf("1:adjA\n");
         printf("2:adjB\n");
         scanf("%d", &scanID);
-        system("reset");
+        system(CLEAR_CMD);
     } while (!(1 == scanID || 2 == scanID));
+
     if(1 == scanID)
     {
         if(rA == cA)
@@ -501,56 +515,67 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
             n = rA;
             resetMatrix(z);
             resetMatrix(w);
-            for(int i = 1; i <= n; i++)//余因子の作成
+            for(int i = 0; i < n; i++)//余因子の作成
             {
-                for(int j = 1; j <= n; j++)
+                for(int j = 0; j < n; j++)
                 {
-                    int iB = 1, jB = 1;
+                    int iB = 0, jB = 0;
                     float delta = 1;
-                    for(int iA = 1; iA <= n; iA++)//i行j列を除く
+                    for(int iA = 0; iA < n; iA++)//i行j列を除く
                     {
                         if(iA != i)
                         {
-                            jB = 1;
-                            for(int jA = 1; jA <= n; jA++)
+                            jB = 0;
+                            for(int jA = 0; jA < n; jA++)
                             {
                                 if(jA != j)
                                 {
-                                    w[iB - 1][jB - 1] = x[iA - 1][jA - 1];
+                                    w[iB][jB] = x[iA][jA];
                                     jB++;
                                 }
                             }
                             iB++;
                         }
                     }
-                    //行列式を作る
-                    for(int jA = 1; jA <= n - 1; jA++) //上三角化
+                    /*******行列式開始********/
+                    for(int jA = 0; jA < n - 1; jA++) //上三角化
                     {
-                        for(int iA = jA + 1; iA <= n - 1; iA++)
+                        if(0 == w[jA][jA]) //0でないピボットを探す
                         {
-                            if(0 != w[jA - 1][jA - 1]) break;
-                            P(w[iA - 1], w[jA - 1]);
-                            delta *= -1;
-                        }
-                        if(0 != w[jA - 1][jA - 1])
-                        {
-                            for(int iA = jA + 1; iA <= n - 1; iA++)
+                            int found = -1;
+                            for(int iA = jA + 1; iA < n - 1; iA++)
                             {
-                                k = -w[iA - 1][jA - 1] / w[jA - 1][jA - 1];
-                                R(w[iA - 1], w[jA - 1], k);
+                                if(0 != w[iA][jA])
+                                {
+                                    P(w[iA], w[jA]);
+                                    delta *= -1;
+                                    found = iA;
+                                    break;
+                                }
+                            }
+                            if(-1 == found)
+                            {
+                                delta = 0;
+                                break;
                             }
                         }
-                        else
-                        { 
-                            delta = 0;
+                        for(int iA = jA + 1; iA < n - 1; iA++)
+                        {
+                            k = -w[iA][jA] / w[jA][jA];
+                            R(w[iA], w[jA], k);
                         }
                     }
-                    for(int iA = 1; iA <= n - 1; iA++) //上三角行列の行列式
+                    if(0 != delta)
                     {
-                        delta *= w[iA - 1][iA - 1];
+                        for(int i = 0; i < n - 1; i++)
+                        {
+                            delta *= w[i][i];
+                        }
                     }
-                    if(0 == (i + j) % 2) z[j - 1][i - 1] = delta;
-                    else z[j - 1][i - 1] = -delta;  //結果に代入
+                    /*******行列式終了********/
+                    //結果保存用行列に代入
+                    if(0 == (i + j) % 2) z[j][i] = delta;
+                    else z[j][i] = -delta;  //結果に代入
                 }
             }
         }
@@ -567,56 +592,66 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
             n = rB;
             resetMatrix(z);
             resetMatrix(w);
-            for(int i = 1; i <= n; i++)//余因子の作成
+            for(int i = 0; i < n; i++)//余因子の作成
             {
-                for(int j = 1; j <= n; j++)
+                for(int j = 0; j < n; j++)
                 {
-                    int iB = 1, jB = 1;
+                    int iB = 0, jB = 0;
                     float delta = 1;
-                    for(int iA = 1; iA <= n; iA++)//i行j列を除く
+                    for(int iA = 0; iA < n; iA++)//i行j列を除く
                     {
                         if(iA != i)
                         {
-                            jB = 1;
-                            for(int jA = 1; jA <= n; jA++)
+                            jB = 0;
+                            for(int jA = 0; jA < n; jA++)
                             {
                                 if(jA != j)
                                 {
-                                    w[iB - 1][jB - 1] = y[iA - 1][jA - 1];
+                                    w[iB][jB] = y[iA][jA];
                                     jB++;
                                 }
                             }
                             iB++;
                         }
                     }
-                    //行列式を作る
-                    for(int jA = 1; jA <= n - 1; jA++) //上三角化
+                    /*******行列式開始********/
+                    for(int jA = 0; jA < n - 1; jA++) //上三角化
                     {
-                        for(int iA = jA + 1; iA <= n - 1; iA++)
+                        if(0 == w[jA][jA]) //0でないピボットを探す
                         {
-                            if(0 != w[jA - 1][jA - 1]) break;
-                            P(w[iA - 1], w[jA - 1]);
-                            delta *= -1;
-                        }
-                        if(0 != w[jA - 1][jA - 1])
-                        {
-                            for(int iA = jA + 1; iA <= n - 1; iA++)
+                            int found = -1;
+                            for(int iA = jA + 1; iA < n - 1; iA++)
                             {
-                                k = -w[iA - 1][jA - 1] / w[jA - 1][jA - 1];
-                                R(w[iA - 1], w[jA - 1], k);
+                                if(0 != w[iA][jA])
+                                {
+                                    P(w[iA], w[jA]);
+                                    delta *= -1;
+                                    found = iA;
+                                    break;
+                                }
+                            }
+                            if(-1 == found)
+                            {
+                                delta = 0;
+                                break;
                             }
                         }
-                        else
-                        { 
-                            delta = 0;
+                        for(int iA = jA + 1; iA < n - 1; iA++)
+                        {
+                            k = -w[iA][jA] / w[jA][jA];
+                            R(w[iA], w[jA], k);
                         }
                     }
-                    for(int iA = 1; iA <= n - 1; iA++) //上三角行列の行列式
+                    if(0 != delta)
                     {
-                        delta *= w[iA - 1][iA - 1];
+                        for(int i = 0; i < n - 1; i++)
+                        {
+                            delta *= w[i][i];
+                        }
                     }
-                    if(0 == (i + j) % 2) z[j - 1][i - 1] = delta;
-                    else z[j - 1][i - 1] = -delta;  //結果に代入
+                    /*******行列式終了********/
+                    if(0 == (i + j) % 2) z[j][i] = delta;
+                    else z[j][i] = -delta;  //結果に代入
                 }
             }
         }
@@ -627,7 +662,6 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
         }
     }
     outputMatrix(n, n, z);
-    return;
 }
 
 int main()
