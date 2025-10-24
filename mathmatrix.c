@@ -134,17 +134,19 @@ void multiMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[si
     if(cA == rB)
     {
         resetMatrix(z);
-        for(int i = 1; i <= rA; i++)
+        
+        for(int i = 0; i < rA; i++)
         {
-            for(int j = 1; j <= cB; j++)
+            for(int j = 0; j < cB; j++)
             {
-                z[i - 1][j - 1] = 0;
-                for(int k = 1; k <= rB; k++)
+                z[i][j] = 0;
+                for(int k = 0; k < rB; k++)
                 {
-                    z[i - 1][j - 1] += x[i - 1][k - 1] * y[k - 1][j - 1];
+                    z[i][j] += x[i][k] * y[k][j];
                 }
             }
         }
+
         printf("A*B=\n");
         outputMatrix(rA, cB, z);
     }
