@@ -290,37 +290,39 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
 
 
 //行列式
-int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
+void detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
 {
     int scanID;
     int n;
     float det = 1;
     float k;
+
     do
     {
         printf("行列式の選択\n");
         printf("1:detA\n");
         printf("2:detB\n");
         scanf("%d", &scanID);
-        system("reset");
+        system(CLEAR_CMD);
     } while (!(1 == scanID || 2 == scanID));
+
+    //行列を計算用行列にコピー
     if(1 == scanID)
     {
         if(rA == cA)
         {
             n = rA;
-            for(int i = 1; i <= size; i++)
+            for(int i = 0; i < size; i++)
             {
-                for(int j = 1; j <= size; j++)
+                for(int j = 0; j < size; j++)
                 {
-                    z[i - 1][j - 1] = x[i - 1][j - 1];
+                    z[i][j] = x[i][j];
                 }
             }
         }
         else
         {
             printf("行列式が定義できない");
-            return 0;
         }
     }
     else
@@ -328,55 +330,70 @@ int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size]
         if(rB == cB)
         {
             n = rB;
-            for(int i = 1; i <= size; i++)
+            for(int i = 0; i < size; i++)
             {
-                for(int j = 1; j <= size; j++)
+                for(int j = 0; j < size; j++)
                 {
-                    z[i - 1][j - 1] = y[i - 1][j - 1];
+                    z[i][j] = y[i][j];
                 }
             }
         }
         else
         {
             printf("行列式が定義できない");
-            return 0;
         }
     }
-    for(int j = 1; j <= n; j++) //上三角化
+
+    /*******ガウスの消去法開始********/
+    for(int j = 0; j < n; j++) //上三角化
     {
-        for(int i = j + 1; i <= n; i++)
+        if(0 == z[j][j]) //0でないピボットを探す
         {
-            if(0 != z[j - 1][j - 1]) break;
-            P(z[i - 1], z[j - 1]);
-            det *= -1;
-        }
-        if(0 != z[j - 1][j - 1])
-        {
-            for(int i = j + 1; i <= n; i++)
+            int found = -1;
+            for(int i = j + 1; i < n; i++)
             {
-                k = -z[i - 1][j - 1] / z[j - 1][j - 1];
-                R(z[i - 1], z[j - 1], k);
+                if(0 != z[i][j])
+                {
+                    P(z[i], z[j]);
+                    det *= -1;
+                    found = i;
+                    break;
+                }
+            }
+            if(-1 == found)
+            {
+                det = 0;
+                break;
             }
         }
-        else
-        { 
-            det = 0;
+        for(int i = j + 1; i < n; i++)
+        {
+            k = -z[i][j] / z[j][j];
+            R(z[i], z[j], k);
         }
     }
-    for(int i = 1; i <= n; i++) //上三角行列の行列式
+    /*******ガウスの消去法終了********/
+
+    //行列式の計算
+    if(0 != det)
     {
-        det *= z[i - 1][i - 1];
+        for(int i = 0; i < n; i++)
+        {
+            det *= z[i][i];
+        }
     }
-    if(1 == scanID) printf("detA = %.3f", det);
-    else printf("detB = %.3f", det);
-    return 0;
+
+    if(1 == scanID) printf("detA = %.3f\n", det);
+    else printf("detB = %.3f\n", det);
 }
+
 
 //逆行列
 int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size], float E[size][size])
 {
     int scanID, n;
     float k;
+
     do
     {
         printf("行列の選択\n");
@@ -385,6 +402,8 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
         scanf("%d", &scanID);
         system("reset");
     } while (!(1 == scanID || 2 == scanID));
+
+
     if(1 == scanID)
     {
         if(rA == cA)
@@ -427,6 +446,8 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
             return 0;
         }
     }
+
+
     for(int j = 1; j <= n; j++) //掃き出し法
     {
         for(int i = j + 1; i <= n; i++)
