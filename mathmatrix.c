@@ -3,6 +3,13 @@
 #define MENUNUMBER 7
 #define size 5
 
+#ifdef _WIN32
+#define CLEAR_CMD "cls"
+#else
+#define CLEAR_CMD "clear"
+#endif
+
+
 //行列の出力
 void outputMatrix(int r, int c, float x[size][size])
 {
@@ -17,6 +24,7 @@ void outputMatrix(int r, int c, float x[size][size])
     }
 }
 
+
 //行列のリセット
 void resetMatrix(float x[size][size])
 {
@@ -29,6 +37,7 @@ void resetMatrix(float x[size][size])
     }
 }
 
+
 //行列の取得
 void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[size][size])
 {
@@ -39,51 +48,60 @@ void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[
         printf("1:行列A\n");
         printf("2:行列B\n");
         scanf("%d", &scanID);
-        system("reset");
+        system(CLEAR_CMD);
     } while (!(1 == scanID || 2 == scanID));
-    if(1 == scanID)
+
+    if(1 == scanID)//行列Aの取得
     {
         resetMatrix(x);
-        do
+
+        do//行列のサイズ選択
         {
-            printf("行列Aの行数を選択:");
+            printf("行列Aの行数を選択(1~%d):", size);
             scanf("%d", rA);
-            printf("行列Aの列数を選択:");
+            printf("行列Aの列数を選択(1~%d):", size);
             scanf("%d", cA);
-            system("reset");
+            system(CLEAR_CMD);
         } while (!(1 <= *rA && *rA <= size && 1 <= *cA && *cA <= size));
-        for(int i = 1; i <= *rA; i++)
+
+        for(int i = 0; i < *rA; i++)//行列の登録
         {
-            for(int j = 1; j <= *cA; j++)
+            for(int j = 0; j < *cA; j++)
             {
-                printf("行列Aの(%d,%d)成分:", i, j);
-                scanf("%f", &x[i - 1][j - 1]);
+                printf("行列Aの(%d,%d)成分:", i + 1, j + 1);
+                scanf("%f", &x[i][j]);
             }
         }
-        system("reset");
+
+        system(CLEAR_CMD);
     }
-    else
+
+    else//行列Bの取得
     {
         resetMatrix(y);
-        do
+
+        do//行列のサイズ選択
         {
             printf("行列Bの行数を選択:");
             scanf("%d", rB);
             printf("行列Bの列数を選択:");
             scanf("%d", cB);
-            system("reset");
+            system(CLEAR_CMD);
         } while (!(1 <= *rB && *rB <= size && 1 <= *cB && *cB <= size));
-        for(int i = 1; i <= *rB; i++)
+
+        for(int i = 0; i < *rB; i++)//行列の登録
         {
-            for(int j = 1; j <= *cB; j++)
+            for(int j = 0; j < *cB; j++)
             {
-                printf("行列Bの(%d,%d)成分:", i, j);
-                scanf("%f", &y[i - 1][j - 1]);
+                printf("行列Bの(%d,%d)成分:", i + 1, j + 1);
+                scanf("%f", &y[i][j]);
             }
         }
-        system("reset");
+
+        system(CLEAR_CMD);
     }
 }
+
 
 //行列の和
 void addMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
