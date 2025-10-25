@@ -110,6 +110,26 @@ void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[
 }
 
 
+void nowDisplay(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size])
+{
+    if(rA > 0)
+    {
+        printf("A=\n");
+        outputMatrix(rA, cA, x);
+        if(rB > 0)
+        {
+            printf("\n\n");
+        }
+    }
+    if(rB > 0)
+    {
+        printf("B=\n");
+        outputMatrix(rB, cB, y);
+    }
+    printf("\n");
+}
+
+
 //行列の和
 void addMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
 {
@@ -573,6 +593,7 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
                         }
                     }
                     /*******行列式終了********/
+
                     //結果保存用行列に代入
                     if(0 == (i + j) % 2) z[j][i] = delta;
                     else z[j][i] = -delta;  //結果に代入
@@ -669,7 +690,7 @@ int main()
     int menuID;
     float matrixA[size][size], matrixB[size][size], matrixResult[size][size]; //入出力用行列
     float III[size][size]; //単位行列もしくは一時保存用行列
-    int rowA, columnA, rowB, columnB; //行列の状態用変数
+    int rowA = 0, columnA = 0, rowB = 0, columnB = 0; //行列の状態用変数
 
     resetMatrix(matrixA);//行列の初期化
     resetMatrix(matrixB);
@@ -683,15 +704,16 @@ int main()
 
         printf("\n行列専用演算機\n\n");
         printf("1:行列のリセット/登録\n");
-        printf("2:行列の和\n");
-        printf("3:行列の積\n");
-        printf("4:簡約化\n");
-        printf("5:行列式\n");
-        printf("6:逆行列\n");
-        printf("7:余因子行列\n");
+        printf("2:行列の確認\n");
+        printf("3:行列の和\n");
+        printf("4:行列の積\n");
+        printf("5:簡約化\n");
+        printf("6:行列式\n");
+        printf("7:逆行列\n");
+        printf("8:余因子行列\n");
         printf("0:終了\n");
         scanf("%d",&menuID); 
-        system("reset");
+        system(CLEAR_CMD);
 
         if(menuID < 0 || MENUNUMBER < menuID) goto there;
         
@@ -702,26 +724,30 @@ int main()
             break;
 
             case 2:
-                addMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
+                nowDisplay(rowA, columnA, rowB, columnB, matrixA, matrixB);
             break;
 
             case 3:
-                multiMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
+                addMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
             break;
 
             case 4:
+                multiMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
+            break;
+
+            case 5:
                 rrefMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
             break;
             
-            case 5:
+            case 6:
                 detMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
             break;
 
-            case 6:
+            case 7:
                 inverseMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult, III);
             break;
 
-            case 7:
+            case 8:
                 adjMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult, III);
             break;
 
