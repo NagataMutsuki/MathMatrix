@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
-#define MENUNUMBER 7
-#define size 5
+#define MENUNUMBER 8 //メニューの数
+#define size 5 //行列の大きさ
 
 
 //コンソールクリア用マクロ
@@ -10,6 +10,7 @@
 #else
 #define CLEAR_CMD "clear"
 #endif
+
 
 //プロトタイプ宣言
 void outputMatrix(int r, int c, float x[size][size]);
@@ -116,7 +117,8 @@ void outputMatrix(int r, int c, float x[size][size])
     {
         for(int j = 0; j < c; j++)
         {
-            printf("%8.3f", x[i][j]);
+            if(0.0 == x[i][j]) printf("%8.3f", 0.0);
+            else printf("%8.3f", x[i][j]);
             if (j < c - 1) printf(", ");
             else printf("\n");
         }
