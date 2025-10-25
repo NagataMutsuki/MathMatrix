@@ -3,12 +3,110 @@
 #define MENUNUMBER 7
 #define size 5
 
+
 //コンソールクリア用マクロ
 #ifdef _WIN32
 #define CLEAR_CMD "cls"
 #else
 #define CLEAR_CMD "clear"
 #endif
+
+//プロトタイプ宣言
+void outputMatrix(int r, int c, float x[size][size]);
+void resetMatrix(float x[size][size]);
+void getMatrix(int *rA, int *cA, int *rB, int *cB, float x[size][size], float y[size][size]);
+void nowDisplay(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size]);
+void addMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size]);
+void multiMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size]);
+void P(float x[size], float y[size]);
+void Q(float x[size], float c);
+void R(float x[size], float y[size], float c);
+int rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size]);
+int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size]);
+int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size], float E[size][size]);
+int adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size], float w[size][size]);
+
+
+int main()
+{
+    int menuID;
+    float matrixA[size][size], matrixB[size][size], matrixResult[size][size]; //入出力用行列
+    float III[size][size]; //単位行列もしくは一時保存用行列
+    int rowA = 0, columnA = 0, rowB = 0, columnB = 0; //行列の状態用変数
+
+    resetMatrix(matrixA);//行列の初期化
+    resetMatrix(matrixB);
+
+    do
+    {
+        resetMatrix(matrixResult);//計算用行列の初期化
+        resetMatrix(III);
+
+        there:
+
+        printf("\n行列専用演算機\n\n");
+        printf("1:行列のリセット/登録\n");
+        printf("2:行列の確認\n");
+        printf("3:行列の和\n");
+        printf("4:行列の積\n");
+        printf("5:簡約化\n");
+        printf("6:行列式\n");
+        printf("7:逆行列\n");
+        printf("8:余因子行列\n");
+        printf("0:終了\n");
+        scanf("%d",&menuID); 
+        system(CLEAR_CMD);
+
+        if(menuID < 0 || MENUNUMBER < menuID) goto there;
+        
+        switch (menuID)
+        {
+            case 1:
+                getMatrix(&rowA, &columnA, &rowB, &columnB, matrixA, matrixB);
+            break;
+
+            case 2:
+                if(0 == rowA && 0 == rowB) printf("行列を登録してください");
+                else nowDisplay(rowA, columnA, rowB, columnB, matrixA, matrixB);
+            break;
+
+            case 3:
+                if(0 == rowA || 0 == rowB) printf("行列を登録してください");
+                else addMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
+            break;
+
+            case 4:
+                if(0 == rowA || 0 == rowB) printf("行列を登録してください");
+                else multiMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
+            break;
+
+            case 5:
+                if(0 == rowA && 0 == rowB) printf("行列を登録してください");
+                else rrefMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
+            break;
+            
+            case 6:
+                if(0 == rowA && 0 == rowB) printf("行列を登録してください");
+                else detMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
+            break;
+
+            case 7:
+                if(0 == rowA && 0 == rowB) printf("行列を登録してください");
+                else inverseMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult, III);
+            break;
+
+            case 8:
+                if(0 == rowA && 0 == rowB) printf("行列を登録してください");
+                else adjMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult, III);
+            break;
+
+            default:
+                break;
+        }
+    } while (0 != menuID);
+
+    return 0;
+}
 
 
 //行列の出力
@@ -217,7 +315,7 @@ void R(float x[size], float y[size], float c)
 
 
 //行列の簡約化
-void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
+int rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size])
 {
     int scanID;
     float k;
@@ -237,6 +335,11 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
     //行列を計算用行列にコピー
     if(1 == scanID)
     {
+        if(0 == rA)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         r = rA;
         c = cA;
         for(int i = 0; i < size; i++)
@@ -249,6 +352,11 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
     }
     else
     {
+        if(0 == rB)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         r = rB;
         c = cB;
         for(int i = 0; i < size; i++)
@@ -306,6 +414,8 @@ void rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[siz
     outputMatrix(r, c, z);
     if(1 == scanID) printf("rankA = %d\n", rank);
     else printf("rankB = %d\n", rank);
+
+    return 0;
 }
 
 
@@ -329,6 +439,11 @@ int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size]
     //行列を計算用行列にコピー
     if(1 == scanID)
     {
+        if(0 == rA)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         if(rA == cA)
         {
             n = rA;
@@ -348,6 +463,11 @@ int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size]
     }
     else
     {
+        if(0 == rB)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         if(rB == cB)
         {
             n = rB;
@@ -407,6 +527,8 @@ int detMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size]
 
     if(1 == scanID) printf("detA = %.3f\n", det);
     else printf("detB = %.3f\n", det);
+
+    return 0;
 }
 
 
@@ -428,6 +550,11 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
     //行列を計算用行列にコピー
     if(1 == scanID)
     {
+        if(0 == rA)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         if(rA == cA)
         {
             n = rA;
@@ -449,6 +576,11 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
     }
     else
     {
+        if(0 == rB)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         if(rB == cB)
         {
             n = rB;
@@ -514,7 +646,7 @@ int inverseMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[s
 }
 
 //余因子行列
-void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size], float w[size][size])
+int adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size][size], float z[size][size], float w[size][size])
 {
     int scanID, n;
     float k;
@@ -530,6 +662,11 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
 
     if(1 == scanID)
     {
+        if(0 == rA)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         if(rA == cA)
         {
             n = rA;
@@ -603,11 +740,16 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
         else
         {
             printf("余因子行列が定義できない");
-            return;
+            return 0;
         }
     }
     else
     {
+        if(0 == rB)
+        {
+            printf("行列を登録してください");
+            return 0;
+        }
         if(rB == cB)
         {
             n = rB;
@@ -679,82 +821,9 @@ void adjMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
         else
         {
             printf("余因子行列が定義できない");
-            return;
+            return 0;
         }
     }
     outputMatrix(n, n, z);
-}
-
-int main()
-{
-    int menuID;
-    float matrixA[size][size], matrixB[size][size], matrixResult[size][size]; //入出力用行列
-    float III[size][size]; //単位行列もしくは一時保存用行列
-    int rowA = 0, columnA = 0, rowB = 0, columnB = 0; //行列の状態用変数
-
-    resetMatrix(matrixA);//行列の初期化
-    resetMatrix(matrixB);
-
-    do
-    {
-        resetMatrix(matrixResult);//計算用行列の初期化
-        resetMatrix(III);
-
-        there:
-
-        printf("\n行列専用演算機\n\n");
-        printf("1:行列のリセット/登録\n");
-        printf("2:行列の確認\n");
-        printf("3:行列の和\n");
-        printf("4:行列の積\n");
-        printf("5:簡約化\n");
-        printf("6:行列式\n");
-        printf("7:逆行列\n");
-        printf("8:余因子行列\n");
-        printf("0:終了\n");
-        scanf("%d",&menuID); 
-        system(CLEAR_CMD);
-
-        if(menuID < 0 || MENUNUMBER < menuID) goto there;
-        
-        switch (menuID)
-        {
-            case 1:
-                getMatrix(&rowA, &columnA, &rowB, &columnB, matrixA, matrixB);
-            break;
-
-            case 2:
-                nowDisplay(rowA, columnA, rowB, columnB, matrixA, matrixB);
-            break;
-
-            case 3:
-                addMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
-            break;
-
-            case 4:
-                multiMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
-            break;
-
-            case 5:
-                rrefMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
-            break;
-            
-            case 6:
-                detMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult);
-            break;
-
-            case 7:
-                inverseMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult, III);
-            break;
-
-            case 8:
-                adjMatrix(rowA, columnA, rowB, columnB, matrixA, matrixB, matrixResult, III);
-            break;
-
-            default:
-                break;
-        }
-    } while (0 != menuID);
-
     return 0;
 }
