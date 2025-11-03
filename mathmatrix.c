@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #define MENUNUMBER 8 //メニューの数
 #define size 5 //行列の大きさ
+#define EPSIRON 1e-4f
 
 
 //コンソールクリア用マクロ
@@ -302,7 +303,8 @@ void Q(float x[size], float c)
 {
     for(int i = 0; i < size; i++)
     {
-        x[i] *= c;
+        if(-EPSIRON < x[i] && x[i] < EPSIRON) x[i] = 0;
+        else x[i] *= c;
     }
 }
 
@@ -311,7 +313,7 @@ void R(float x[size], float y[size], float c)
 {
     for(int i = 0; i < size; i++)
     {
-        x[i] += y[i] * c;
+        if(!(-EPSIRON < y[i] && y[i] < EPSIRON)) x[i] += y[i] * c;
     }
 }
 
@@ -323,7 +325,7 @@ int rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
     float k;
     int unRank = 0; //階数の最大値よりいくつ小さいか
     int r, c;
-    int rank;
+    int rank = 0;
 
     do
     {
@@ -396,20 +398,26 @@ int rrefMatrix(int rA, int cA, int rB, int cB, float x[size][size], float y[size
         //ピボットのある行を先頭へ持っていく
         P(z[pivotRow], z[found]);
 
-        //ピボットを１にする
-        k = 1 / z[pivotRow][j];
-        Q(z[pivotRow], k);
+        //丸め誤差対策
+        Q(z[pivotRow], 1);
 
-        //他の行のピボットがある列を0にする
-        for(int i = 0; i < r; i++)
+        //ピボットを１にする
+        if(0 != z[pivotRow][j])
         {
-            if(i != pivotRow)
+            k = 1 / z[pivotRow][j];
+            Q(z[pivotRow], k);
+
+            //他の行のピボットがある列を0にする
+            for(int i = 0; i < r; i++)
             {
-                k = -z[i][j];
-                R(z[i], z[pivotRow], k);
+                if(i != pivotRow)
+                {
+                    k = -z[i][j];
+                    R(z[i], z[pivotRow], k);
+                }
             }
+            rank++;
         }
-        rank = pivotRow + 1;
     }
     /*******掃き出し法終了********/
 
